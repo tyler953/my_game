@@ -2,10 +2,12 @@ mod cell;
 use crate::cell::*;
 mod grid;
 use crate::grid::*;
+mod tetromino;
+use crate::tetromino::*;
 use ggez::{Context, ContextBuilder, GameResult};
 use ggez::graphics::{self, Color};
 use ggez::event::{self, EventHandler};
-use ggez::mint::Vector2;
+use ggez::mint::Point2;
 use ggez::input::keyboard::KeyCode;
 use std::time::Duration;
 use ggez::conf::WindowMode;
@@ -48,7 +50,7 @@ fn main() {
 struct MainState {
     // Establish variables
     previous_cells: Vec<Cell>,
-    current_cell: Cell,
+    current_tetromino: Tetromino,
     timer: std::time::Instant,
     grid: Grid,
 }
@@ -57,18 +59,8 @@ impl MainState {
     fn new(ctx: &mut Context) -> MainState {
         MainState {
             // create an instance of everything needed
-            // timer to control when it moves
+            // a timer to control when it moves
             timer: std::time::Instant::now(),
-            // a new cell object that will always represent the cell that is currently being moved
-            current_cell: Cell::new(
-                ctx,
-                Vector2 {
-                    x: 285.0,
-                    y: 5.0,
-                },
-                Duration::from_millis(500),
-                Duration::from_millis(5),
-            ),
             // a vector to hold all cells that have been moved
             previous_cells: Vec::new(),
             // a grid to display the board and track locations for collision detection
@@ -76,7 +68,14 @@ impl MainState {
                 ctx,
                 30,
                 30,
-            )
+            ),
+            current_tetromino: Tetromino::new(
+                ctx,
+                Tetromino::get_random_shape(),
+                Point2 { x: 265.0, y: 5.0 },
+                Duration::from_millis(500),
+                Duration::from_millis(5),
+            ),
         }
     }
 }
@@ -88,15 +87,17 @@ impl EventHandler for MainState {
         let k_ctx = &ctx.keyboard;
         // handle keyboard inputs (left, right, and down)
         if k_ctx.is_key_just_pressed(KeyCode::Right) {
-            self.current_cell.move_right(20.0, &mut self.grid);
+            self.current_tetromino.move_right(&mut self.grid);
         } else if k_ctx.is_key_just_pressed(KeyCode::Left) {
-            self.current_cell.move_left(20.0, &mut self.grid);
-        } else if k_ctx.is_key_just_pressed(KeyCode::Down) {
-            self.current_cell.speed_up(20.0, &mut self.grid);
+            self.current_tetromino.move_left(&mut self.grid);
+        } else if k_ctx.is_key_pressed(KeyCode::Down) {
+            self.current_tetromino.speed_up(&mut self.grid);
+        } else if k_ctx.is_key_just_pressed(KeyCode::Up) {
+            self.current_tetromino.rotate_tetromino();
         }
 
         // automatically move the current cell down when the time runs out
-        self.current_cell.move_down(&mut self.grid, &mut self.timer, ctx, &mut self.previous_cells);
+        self.current_tetromino.move_down(&mut self.grid, &mut self.timer, ctx, &mut self.previous_cells);
         Ok(())
     }
 
@@ -105,9 +106,9 @@ impl EventHandler for MainState {
         
         // draw the grid, the current cell, and all previous cells onto the canvas
         self.grid.draw(ctx, &mut canvas).expect("Couldn't draw grid");
-        self.current_cell.draw(&mut canvas).expect("Couldn't draw current");
+        self.current_tetromino.draw_tetromino(&mut canvas);
         for cell in &self.previous_cells {
-            cell.draw(&mut canvas).expect("Couldn't draw previous");
+            cell.draw_previous(&mut canvas);
         }
         
         canvas.finish(ctx)
