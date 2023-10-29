@@ -3,7 +3,7 @@
 This is a program I created to start learning to use Rust. I created a simple Tetris clone to explore may different aspects of the language as well as to explore some aspects of game design and development. I also set out to explore different strategies behind the implementation of the game logic.
 I was able to learn a lot about the applications of Rust and its syntax. I was surprised by how similar it is to other languages I've used while still having a number of features that make it a little more
 strict in its usage. The program itself creates a small window with a 30x30 grid of cells in which a tetromino with a random shape will slowly fall fall to the bottom. After the reaching the bottom, it will start a new tetromino with another random shape
-falling from the top again. It has built in collision detection to prevent blocks from leaving the grid and from overlapping with other blocks outside of a few errors. The game is played with all four arrow keys. Left and right, when pressed, will move the tetromino left and right one cell and down can be pressed or held to speed up the process.
+falling from the top again. It has built in collision detection to prevent blocks from leaving the grid and from overlapping with other blocks outside of a few errors. The game is played with all four arrow keys. Left and right, when pressed, will move the tetromino left and right one cell and down can be pressed or held to speed up the process. The up arrow is used to rotate the tetromino 90 degrees clockwise.
 
 [Software Demo Video](https://youtu.be/zb7coPbJ_Go)
 
